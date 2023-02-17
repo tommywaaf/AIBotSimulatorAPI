@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, send_file
 from pymongo import MongoClient
 from bson import ObjectId
-from io import BytesIO
 
 app = Flask(__name__)
 
@@ -44,25 +43,22 @@ def get_next_game():
             "imageId": str(team2["imageId"])
         }
     })
-@app.route('/getbotimage/<string:bot_id>')
+
+
+@app.route('/getbotimage/<bot_id>')
 def get_bot_image(bot_id):
-    # Find the bot by bot_id
-    bot = db.bots.find_one({"botId": bot_id})
-    if bot is None:
-        return {"message": "Bot not found."}, 404
-
-    # Find the image by image_id
-    image_id = bot["imageId"]
-    image = db.images.find_one({"_id": ObjectId(image_id)})
-    if image is None:
-        return {"message": "Image not found."}, 404
-
-    # Convert the binary data to an in-memory file-like object
-    image_data = BytesIO(image["data"])
-
-    # Return the image as a file
-    return send_file(image_data.getvalue(), mimetype=image["mimetype"])
-
+    # Find the bot document by its ID
+    bot = db.bots.find_one({'botId': bot_id})
+    if not bot:
+        return jsonify({'error': 'Bot not found'}), 404
+    
+    # Find the image document by its ID
+    image = db.images.find_one({'_id': ObjectId(bot['imageId'])})
+    if not image:
+        return jsonify({'error': 'Image not found'}), 404
+    
+    # Return the image data with the appropriate content type
+    return send_file(image['data'], mimetype=image['contentType'])
 
 
 if __name__ == '__main__':
