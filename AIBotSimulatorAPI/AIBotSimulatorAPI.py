@@ -81,6 +81,7 @@ def get_game_data(game_id):
     
     # Return the game data as JSON
     return jsonify(game)
+  
 @app.route('/getnext20games')
 def get_next_20_games():
     # Find the next 20 games with no winner, sorted by game ID
@@ -118,17 +119,14 @@ def get_next_20_games():
 
 @app.route('/getleaderboard')
 def get_leaderboard():
-    pipeline = [
-        {"$group": {"_id": "$botId", "wins": {"$sum": "$wins"}, "bot": {"$first": "$$ROOT"}}},
-        {"$sort": {"wins": -1}},
-        {"$limit": 15}
-    ]
-    result = db.bots.aggregate(pipeline)
-    leaderboard = []
-    for row in result:
-        leaderboard.append(row['bot'])
-    return jsonify(leaderboard)
+    # Find the top 15 bots with the most wins
+    bots = db.bots.find({}, {"_id": False, "botId": True, "wins": True, "losses": True}).sort([("wins", -1)]).limit(15)
 
+    # Create a list of bot data dictionaries with just the required fields
+    leaderboard = [{"botId": bot["botId"], "wins": bot["wins"], "losses": bot["losses"]} for bot in bots]
+
+    # Return the leaderboard as JSON
+    return jsonify(leaderboard)
 
 
 if __name__ == '__main__':
