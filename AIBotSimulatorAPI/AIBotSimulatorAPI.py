@@ -58,7 +58,12 @@ def get_bot_image(bot_id):
         return jsonify({'error': 'Image not found'}), 404
     
     # Return the image data with the appropriate content type
-    return send_file(image['data'], mimetype=image['contentType'])
+    return send_file(
+        io.BytesIO(image['data']), 
+        mimetype=image['contentType'], 
+        as_attachment=False,
+        attachment_filename='bot_image.png'
+    )
 
 
 if __name__ == '__main__':
