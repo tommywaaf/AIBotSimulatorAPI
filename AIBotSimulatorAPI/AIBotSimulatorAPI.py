@@ -57,10 +57,11 @@ def get_bot_image(bot_id):
     if image is None:
         return {"message": "Image not found."}, 404
 
-    # Convert the binary data to a file object
+    # Convert the binary data to an in-memory file-like object
     image_data = BytesIO(image["data"])
 
     # Return the image as a file
-    return send_file(BufferedWriter(image_data), mimetype=image["mimetype"])
+    return send_file(image_data, mimetype=image["mimetype"])
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
