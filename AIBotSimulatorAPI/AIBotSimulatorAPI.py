@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, send_file
 from pymongo import MongoClient
 from bson import ObjectId
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -56,9 +57,11 @@ def get_bot_image(bot_id):
     if image is None:
         return {"message": "Image not found."}, 404
 
-    # Return the image binary data as a file
-    return send_file(image["data"], mimetype=image["mimetype"])
+    # Create a file-like object from the image binary data
+    image_data = BytesIO(image["data"])
 
+    # Return the image as a file
+    return send_file(image_data, mimetype=image["mimetype"])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
