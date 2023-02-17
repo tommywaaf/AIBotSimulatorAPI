@@ -43,7 +43,21 @@ def get_next_game():
             "imageId": str(team2["imageId"])
         }
     })
+@app.route('/getbotimage/<string:bot_id>')
+def get_bot_image(bot_id):
+    # Find the bot by bot_id
+    bot = db.bots.find_one({"botId": bot_id})
+    if bot is None:
+        return {"message": "Bot not found."}, 404
 
+    # Find the image by image_id
+    image_id = bot["imageId"]
+    image = db.images.find_one({"_id": ObjectId(image_id)})
+    if image is None:
+        return {"message": "Image not found."}, 404
+
+    # Return the image as a file
+    return send_file(image, mimetype=image["mimetype"])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
