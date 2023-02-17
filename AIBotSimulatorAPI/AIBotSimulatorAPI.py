@@ -136,6 +136,41 @@ def get_leaderboard():
     # Return the leaderboard as JSON
     return jsonify(leaderboard)
 
+@app.route('/getallbotgames/<bot_id>')
+def get_all_bot_games(bot_id):
+    # Find all games where the specified bot is a player
+    games = db.games.find({"$or": [{"team1": bot_id}, {"team2": bot_id}]}, sort=[("gameId", 1)])
+
+    # Create a list of game details
+    game_list = []
+    for game in games:
+        team1 = db.bots.find_one({"botId": str(game["team1"])})
+        team2 = db.bots.find_one({"botId": str(game["team2"])})
+
+        game_details = {
+            "gameId": game["gameId"],
+            "team1": {
+                "name": team1["name"],
+                "battleCapability": team1["battleCapability"],
+                "wins": team1["wins"],
+                "losses": team1["losses"],
+                "botId": team1["botId"],
+                "imageId": str(team1["imageId"])
+            },
+            "team2": {
+                "name": team2["name"],
+                "battleCapability": team2["battleCapability"],
+                "wins": team2["wins"],
+                "losses": team2["losses"],
+                "botId": team2["botId"],
+                "imageId": str(team2["imageId"])
+            }
+        }
+        game_list.append(game_details)
+
+    # Return the list of game details as JSON
+    return jsonify(game_list)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
