@@ -20,6 +20,7 @@ client = MongoClient(
     password=password,
     authSource="admin"
 )
+db = client['mydatabase']
 
 @app.route('/getnextgame')
 def get_next_game():
