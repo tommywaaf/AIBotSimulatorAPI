@@ -30,6 +30,7 @@ def get_next_game():
             "battleCapability": team1["battleCapability"],
             "wins": team1["wins"],
             "losses": team1["losses"],
+            "botId": team1["botId"],
             "imageId": str(team1["imageId"])
         },
         "team2": {
@@ -37,41 +38,10 @@ def get_next_game():
             "battleCapability": team2["battleCapability"],
             "wins": team2["wins"],
             "losses": team2["losses"],
+            "botId": team2["botId"],
             "imageId": str(team2["imageId"])
         }
     })
-
-
-@app.route('/getteam1image')
-def get_team1_image():
-    # Find the first game with no winner
-    game = db.games.find_one({"winner": {"$exists": False}}, sort=[("gameId", 1)])
-    if game is None:
-        return jsonify({"message": "No active games found."}), 404
-
-    # Get the team1 bot and its image
-    team1 = db.bots.find({"botId": str(game["team1"])})
-    image_id = team1["imageId"]
-    image = db.images.find({"_id": ObjectId(image_id)})
-
-    # Return the image as a file
-    return send_file(image["path"], mimetype=image["mimetype"])
-
-
-@app.route('/getteam2image')
-def get_team2_image():
-    # Find the first game with no winner
-    game = db.games.find_one({"winner": {"$exists": False}}, sort=[("gameId", 1)])
-    if game is None:
-        return jsonify({"message": "No active games found."}), 404
-
-    # Get the team2 bot and its image
-    team2 = db.bots.find({"botId": str(game["team2"])})
-    image_id = team2["imageId"]
-    image = db.images.find({"_id": ObjectId(image_id)})
-
-    # Return the image as a file
-    return send_file(image["path"], mimetype=image["mimetype"])
 
 
 if __name__ == '__main__':
