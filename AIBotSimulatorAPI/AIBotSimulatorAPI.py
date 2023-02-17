@@ -6,13 +6,18 @@ import io
 
 app = Flask(__name__)
 
+# Get the username and password from environment variables
+username = os.environ.get("MONGODB_USERNAME")
+password = os.environ.get("MONGODB_PASSWORD")
+
 # Connect to the MongoDB database
-client = MongoClient(host="161.35.137.38",
-                     port=27017,
-                     username="tommy",
-                     password="tommytommy",
-                     authSource="admin")
-db = client['mydatabase']
+client = MongoClient(
+    "localhost",
+    27017,
+    username=username,
+    password=password,
+    authSource="admin"
+)
 
 @app.route('/getnextgame')
 def get_next_game():
