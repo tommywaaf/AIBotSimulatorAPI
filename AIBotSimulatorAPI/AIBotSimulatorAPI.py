@@ -7,12 +7,11 @@ import openai
 
 
 app = Flask(__name__)
+openai.api_key = "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"
 
 # Get the username and password from environment variables
 username = os.environ.get("MONGODB_USERNAME")
 password = os.environ.get("MONGODB_PASSWORD")
-# Set the OpenAI API key
-openai.api_key = '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'
 # Connect to the MongoDB database
 client = MongoClient(
     "localhost",
