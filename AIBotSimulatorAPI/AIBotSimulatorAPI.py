@@ -199,8 +199,6 @@ def post_generate_battle():
     presence_penalty=0
 )
 
-    new_response = json.loads(response["text"])
-    response = json.dumps(new_response, indent=4, sort_keys=True)
     return response
 
 
