@@ -80,7 +80,7 @@ def get_bot_data(bot_id):
         return jsonify({'error': 'Bot not found'}), 404
 
     # Convert the ObjectId to a string before returning the game data as JSON
-    return json_util.dumps(game)
+    return json_util.dumps(bot)
 
 @app.route('/getgamedata/<game_id>')
 def get_game_data(game_id):
