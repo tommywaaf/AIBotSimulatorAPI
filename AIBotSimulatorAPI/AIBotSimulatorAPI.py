@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_file
+from flask import Flask, jsonify, send_file, request
 from pymongo import MongoClient
 from bson import ObjectId
 import io
@@ -170,6 +170,38 @@ def get_all_bot_games(bot_id):
 
     # Return the list of game details as JSON
     return jsonify(game_list)
+
+@app.route('/postgeneratebattle', methods=['POST'])
+def post_generate_battle():
+    # Get the gameId from the request
+    game_id = request.json.get('gameId')
+
+    # Look up the bots for the game
+    game = db.games.find_one({'gameId': game_id})
+    if not game:
+        return jsonify({'error': 'Game not found'}), 404
+    team1 = db.bots.find_one({"botId": str(game["team1"])})
+    team2 = db.bots.find_one({"botId": str(game["team2"])})
+
+    # Construct the prompt for the OpenAI API request
+    prompt = f"dummy text dummy text team1[{team1['battleCapability']}] team2[{team2['battleCapability']}] dummy text"
+
+    # Send the API request to OpenAI
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=prompt,
+        temperature=0.9,
+        max_tokens=1421,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+
+    # Print the response
+    print(response)
+
+    # Return the response as JSON
+    return jsonify(response)
 
 
 if __name__ == '__main__':
