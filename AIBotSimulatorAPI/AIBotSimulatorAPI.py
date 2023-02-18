@@ -7,7 +7,7 @@ import openai
 
 
 app = Flask(__name__)
-openai.api_key = "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"
+openai.api_key = "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"
 
 # Get the username and password from environment variables
 username = os.environ.get("MONGODB_USERNAME")
