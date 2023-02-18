@@ -6,7 +6,7 @@ from config import OPENAI_API_KEY
 import io
 import os
 import openai
-
+import re
 
 app = Flask(__name__)
 openai.api_key = OPENAI_API_KEY
@@ -208,9 +208,13 @@ def post_generate_battle(game_id):
     presence_penalty=0
     )
     
-    new_response = response["choices"][0]["text"].replace('\n', '')
-    resulttext = new_response["resulttext"]
-    winner = new_response["winner"]
+    response_text = response["choices"][0]["text"]
+    match = re.search(r'"resulttext": "([^"]+)",.*"winner": (\d+)', response_text)
+    if match:
+        resulttext = match.group(1)
+        winner = int(match.group(2))
+    else:
+     return jsonify({'error': 'Failed to extract resulttext and winner'}), 500
 
     # Update the game document
     db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
