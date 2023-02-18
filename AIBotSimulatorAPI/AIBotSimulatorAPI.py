@@ -199,7 +199,10 @@ def post_generate_battle():
     presence_penalty=0
 )
 
-    return response
+    new_response = json.loads(response)["choices"][0]["text"]
+    output = json.loads(new_response)
+
+    print(json.dumps(output, indent=4))
 
 
 if __name__ == '__main__':
