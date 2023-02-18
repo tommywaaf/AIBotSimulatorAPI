@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 import io
 import os
-
+import openai
 
 
 app = Flask(__name__)
@@ -11,6 +11,8 @@ app = Flask(__name__)
 # Get the username and password from environment variables
 username = os.environ.get("MONGODB_USERNAME")
 password = os.environ.get("MONGODB_PASSWORD")
+# Set the OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Connect to the MongoDB database
 client = MongoClient(
@@ -196,9 +198,6 @@ def post_generate_battle():
         frequency_penalty=0,
         presence_penalty=0
     )
-
-    # Print the response
-    print(response)
 
     # Return the response as JSON
     return jsonify(response)
