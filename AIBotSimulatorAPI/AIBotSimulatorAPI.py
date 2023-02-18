@@ -199,8 +199,13 @@ def post_generate_battle():
         presence_penalty=0
     )
 
-    # Return the response as JSON
-    return jsonify(response)
+    # Extract the resulttext and winner fields from the JSON response
+    result = json.loads(response.text)
+    resulttext = result['choices'][0]['text']
+    winner = result['choices'][0]['text'].split('"winner": ')[-1].split('\n')[0]
+
+    # Return the resulttext and winner as JSON
+    return jsonify({'resulttext': resulttext, 'winner': winner})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
