@@ -207,7 +207,7 @@ def post_generate_battle(game_id):
     frequency_penalty=0,
     presence_penalty=0
     )
-
+    response = response.replace('\n', '')
     new_response = json.loads(response["choices"][0]["text"])
     resulttext = new_response["resulttext"]
     winner = new_response["winner"]
