@@ -221,8 +221,7 @@ def post_generate_battle():
     
     winner = str(new_response["winner"])
     db.bots.update_one({'botId': winner}, {'$inc': {'wins': 1}})
-    db.bots.update_one({'botId': str(losing_bot['botId'])}, {'$inc': {'losses': 1}})
-
+    db.bots.update_one({'botId': losing_bot['botId']}, {'$inc': {'losses': 1}})
 
     return jsonify({'winner': winner, 'resulttext': resulttext})
 
