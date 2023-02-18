@@ -212,7 +212,7 @@ def post_generate_battle(game_id):
     match = re.search(r'"resulttext": "([^"]+)",.*"winner": (\d+)', response_text)
     if match:
         resulttext = match.group(1)
-        winner = int(match.group(2))
+        winner = str(match.group(2))
     else:
      return jsonify({'error': 'Failed to extract resulttext and winner'}), 500
 
@@ -220,7 +220,7 @@ def post_generate_battle(game_id):
     db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
 
     # Update the bots documents
-    winner = str(winner)
+    
     winning_bot = db.bots.find_one({'botId': winner})
     losing_bot = None
     if team1['botId'] == winner:
