@@ -84,7 +84,7 @@ def get_bot_data(bot_id):
     # Convert the ObjectId to a string before returning the game data as JSON
     return json_util.dumps(bot)
 
-@app.route('/schedule/game/<game_id>')
+@app.route('/schedule/<game_id>/game')
 def get_game_data(game_id):
     # Convert the game_id to an integer
     try:
