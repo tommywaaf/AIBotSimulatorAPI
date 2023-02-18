@@ -205,8 +205,8 @@ def post_generate_battle():
     presence_penalty=0
 )
 
-    new_response = json.loads(response.choices[0].text)
-    return jsonify(new_response)
+    
+    return(response)
 
 
 if __name__ == '__main__':
