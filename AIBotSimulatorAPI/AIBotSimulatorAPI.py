@@ -1,7 +1,7 @@
 import json
 from flask import Flask, jsonify, send_file, request
 from pymongo import MongoClient
-from bson import ObjectId
+from bson import ObjectId, json_util
 from config import OPENAI_API_KEY
 import io
 import os
@@ -95,8 +95,8 @@ def get_game_data(game_id):
     if not game:
         return jsonify({'error': 'Game not found'}), 404
     
-    # Return the game data as JSON
-    return jsonify(game)
+    # Convert the ObjectId to a string before returning the game data as JSON
+    return json_util.dumps(game)
   
 @app.route('/getnext20games')
 def get_next_20_games():
