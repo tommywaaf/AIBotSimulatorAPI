@@ -78,9 +78,9 @@ def get_bot_data(bot_id):
     bot = db.bots.find_one({'botId': bot_id})
     if not bot:
         return jsonify({'error': 'Bot not found'}), 404
-    
-    # Return the bot document as JSON
-    return jsonify(bot)
+
+    # Convert the ObjectId to a string before returning the game data as JSON
+    return json_util.dumps(game)
 
 @app.route('/getgamedata/<game_id>')
 def get_game_data(game_id):
