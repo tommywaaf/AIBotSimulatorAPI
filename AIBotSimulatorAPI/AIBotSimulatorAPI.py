@@ -212,6 +212,7 @@ def post_generate_battle():
     db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
 
     # Update the bots documents
+    winner = int(winner)
     winning_bot = db.bots.find_one({'botId': winner})
     losing_bot = None
     if team1['botId'] == winner:
