@@ -218,8 +218,7 @@ def post_generate_battle():
         losing_bot = team2
     else:
         losing_bot = team1
-    winner = int(winner)
-
+    winner = str(new_response["winner"])
     db.bots.update_one({'botId': winner}, {'$inc': {'wins': 1}})
     db.bots.update_one({'botId': losing_bot['botId']}, {'$inc': {'losses': 1}})
 
