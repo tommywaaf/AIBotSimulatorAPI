@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, send_file, request
 from pymongo import MongoClient
 from bson import ObjectId
+from config import OPENAI_API_KEY
 import io
 import os
 import openai
 
 
 app = Flask(__name__)
-openai.api_key = "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"
+openai.api_key = OPENAI_API_KEY
 
 # Get the username and password from environment variables
 username = os.environ.get("MONGODB_USERNAME")
