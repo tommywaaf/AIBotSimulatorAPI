@@ -205,8 +205,10 @@ def post_generate_battle():
     presence_penalty=0
 )
 
-    
-    return(response)
+    new_response = json.loads(response.choices[0].text)
+    encoded_response = json.dumps(new_response, ensure_ascii=False)
+
+    return encoded_response
 
 
 if __name__ == '__main__':
