@@ -84,6 +84,12 @@ def get_bot_data(bot_id):
 
 @app.route('/getgamedata/<game_id>')
 def get_game_data(game_id):
+    # Convert the game_id to an integer
+    try:
+        game_id = int(game_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid game ID'}), 400
+    
     # Find the game document by its ID
     game = db.games.find_one({'gameId': game_id})
     if not game:
@@ -199,9 +205,8 @@ def post_generate_battle():
     presence_penalty=0
 )
 
-    new_response = json.loads(response)["choices"][0]["text"]
+    new_response = json.loads(json.dumps(response))["choices"][0]["text"]
     output = json.loads(new_response)
-
     print(json.dumps(output, indent=4))
 
 
