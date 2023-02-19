@@ -1,5 +1,5 @@
 this is the readme. 
 
-You basically run the .py file as a service on a server somewhere, you need the DB to be populated with games and bots, 
+You basically run the .py file as a service on a server somewhere, you need the mongoDB to be populated with games and bots, 
 you then set unity up with the API endpoints and play out a season via AI.
 
