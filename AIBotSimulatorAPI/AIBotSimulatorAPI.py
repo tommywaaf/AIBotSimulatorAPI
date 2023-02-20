@@ -103,8 +103,14 @@ def get_game_data(game_id):
   
 @app.route('/schedule/<int:number_to_fetch>')
 def get_games(number_to_fetch):
-    # Find the next specified number of games with no winner, sorted by game ID
-    games = db.games.find({"winner": {"$exists": False}}, sort=[("gameId", 1)], limit=number_to_fetch)
+    # Find all games with no winner
+    games = db.games.find({"winner": {"$exists": False}})
+
+    # Sort the games by game ID
+    games = games.sort("gameId", 1)
+
+    # Limit the results to the specified number of games
+    games = games[:number_to_fetch]
 
     # Create a list of game details
     game_list = []
@@ -135,6 +141,7 @@ def get_games(number_to_fetch):
 
     # Return the list of game details as JSON
     return jsonify(game_list)
+
 
 @app.route('/bots/leaderboard')
 def get_leaderboard():
