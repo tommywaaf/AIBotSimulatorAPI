@@ -188,10 +188,12 @@ def post_generate_battle(game_id):
     # Get the gameId from the request
     game_id = request.json.get('gameId')
 
-    # Look up the bots for the game
+    # Look up the game document by its ID
     game = db.games.find_one({'gameId': game_id})
     if not game:
         return jsonify({'error': 'Game not found'}), 404
+    if 'winner' in game:
+        return jsonify({'error': 'Game already played'}), 400
     team1 = db.bots.find_one({"botId": str(game["team1"])})
     team2 = db.bots.find_one({"botId": str(game["team2"])})
 
