@@ -106,8 +106,12 @@ def get_games(number_to_fetch):
     # Find all games with no winner
     games = db.games.find({"winner": {"$exists": False}})
 
+    # Convert the cursor to a list
+    games = list(games)
+
     # Sort the games by game ID
-    games = games.sort("gameId", 1)
+    games = sorted(games, key=lambda x: x["gameId"])
+
 
     # Limit the results to the specified number of games
     games = games[:number_to_fetch]
