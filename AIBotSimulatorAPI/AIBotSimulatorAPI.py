@@ -37,8 +37,8 @@ def create_playoff_games():
         'team2': str(bot_ids[1]),
         'gameId': db.games.count_documents({}) + 1,
         'championship': 'yes',
-        'createDate': datetime.utcnow(),
-        'updateDate': datetime.utcnow()
+        'createDate': datetime.datetime.utcnow(),
+        'updateDate': datetime.datetime.utcnow()
     }
     db.games.insert_one(game)
     return jsonify({'message': 'Championship game created successfully'}), 200
