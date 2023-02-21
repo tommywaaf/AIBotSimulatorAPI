@@ -24,6 +24,28 @@ client = MongoClient(
 )
 db = client['mydatabase']
 
+@app.route('/playoff/create')
+def create_playoff_games():
+    # Get the top 2 bots sorted by wins
+    top_2_bots = list(db.bots.find({}, {"_id": False, "botId": True, "wins": True}).sort([("wins", -1)]).limit(2))
+    bot_ids = [bot["botId"] for bot in top_2_bots]
+
+    # Create the championship game
+    game = {
+        'team1': str(bot_ids[0]),
+        'team2': str(bot_ids[1]),
+        'gameId': db.games.count() + 1,
+        'championship': 'yes',
+        'createDate': datetime.utcnow(),
+        'updateDate': datetime.utcnow()
+    }
+    db.games.insert_one(game)
+    return jsonify({'message': 'Championship game created successfully'}), 200
+
+
+
+
+
 @app.route('/schedule/next')
 def get_next_game():
     # Find the first game with no winner
@@ -250,28 +272,6 @@ def post_generate_battle(game_id):
     db.bots.update_one({'botId': losing_bot['botId']}, {'$inc': {'losses': 1}})
 
     return jsonify({'winner': winner, 'resulttext': resulttext})
-
-@app.route('/playoff/create')
-def create_playoff_games():
-    # Get the top 2 bots sorted by wins
-    top_2_bots = list(db.bots.find({}, {"_id": False, "botId": True, "wins": True}).sort([("wins", -1)]).limit(2))
-    bot_ids = [bot["botId"] for bot in top_2_bots]
-
-    # Create the championship game
-    game = {
-        'team1': str(bot_ids[0]),
-        'team2': str(bot_ids[1]),
-        'gameId': db.games.count() + 1,
-        'championship': 'yes',
-        'createDate': datetime.utcnow(),
-        'updateDate': datetime.utcnow()
-    }
-    db.games.insert_one(game)
-
-    return jsonify({'message': 'Championship game created successfully'}), 200
-
-
-    
 
 
 if __name__ == '__main__':
