@@ -38,7 +38,7 @@ def create_playoff_games():
         'gameId': db.games.count_documents({}) + 1,
         'championship': 'yes',
         'createDate': datetime.datetime.utcnow(),
-        'updateDate': datetime.datetime.utcnow()
+         'updateDate': datetime.datetime.utcnow()
     }
     db.games.insert_one(game)
     return jsonify({'message': 'Championship game created successfully'}), 200
@@ -58,7 +58,21 @@ def get_next_game():
         if games_count == 0:
             return jsonify({"message": "No games found."}), 404
         else:
-            return jsonify({"message": "All games are played, build playoff."}), 200
+            # Get the top 2 bots sorted by wins
+            top_2_bots = list(db.bots.find({}, {"_id": False, "botId": True, "wins": True}).sort([("wins", -1)]).limit(2))
+            bot_ids = [bot["botId"] for bot in top_2_bots]
+
+            # Create the championship game
+            game = {
+                'team1': str(bot_ids[0]),
+                'team2': str(bot_ids[1]),
+                'gameId': db.games.count_documents({}) + 1,
+                'championship': 'yes',
+                'createDate': datetime.datetime.utcnow(),
+                'updateDate': datetime.datetime.utcnow()
+            }
+            db.games.insert_one(game)
+            return jsonify({'message': 'Championship game created successfully'}), 200
     # Get the bots for the game
     team1 = db.bots.find_one({"botId": str(game["team1"])})
     team2 = db.bots.find_one({"botId": str(game["team2"])})
