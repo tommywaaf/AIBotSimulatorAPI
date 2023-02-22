@@ -340,6 +340,7 @@ def create_playoff_games(db):
 
                     game = {
                         "gameId": db.games.count_documents({}) + 1,
+                        "_id": ObjectId(),
                         "team1": team1["botId"],
                         "team2": team2["botId"],
                         "series": True,
