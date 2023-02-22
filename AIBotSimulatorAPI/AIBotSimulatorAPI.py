@@ -305,12 +305,9 @@ def post_generate_battle(game_id):
 
     return jsonify({'winner': winner, 'resulttext': resulttext})
 def create_playoff_games(db):
-    # Connect to the MongoDB database
-    client = MongoClient()
-    db = client[db]
-    
+
     # Get the teams based on their final standings
-    teams = list(db.teams.find().sort("wins", -1))
+    teams = list(db.bots.find().sort("wins", -1))
     
     # Create the playoff matchups
     matchups = [
@@ -328,8 +325,8 @@ def create_playoff_games(db):
 
                 game = {
                     "gameId": db.games.count() + 1,
-                    "team1": team1["teamId"],
-                    "team2": team2["teamId"],
+                    "team1": team1["botId"],
+                    "team2": team2["botId"],
                     "series": True,
                     "team1wins": 0,
                     "team2wins": 0,
