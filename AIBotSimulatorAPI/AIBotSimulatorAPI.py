@@ -63,6 +63,11 @@ def get_next_game():
         # Check if there are any games at all
         if games_count == 0:
             return jsonify({"message": "No games found."}), 404
+         # Check if there is a championship game with a winner
+        championship_game = db.games.find_one({"playoffround": 3, "winner": {"$exists": True}})
+        if championship_game is not None:
+            winner = championship_game["winner"]
+            return jsonify({"message": "Champion has been declared. The winner is " + winner + "."})
         
     # Get the bots for the game
     team1 = db.bots.find_one({"botId": str(game["team1"])})
