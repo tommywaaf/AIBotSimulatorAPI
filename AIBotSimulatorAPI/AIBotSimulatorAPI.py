@@ -50,29 +50,20 @@ def create_playoff_games():
 
 @app.route('/schedule/next')
 def get_next_game():
+    # Check if all games have a winner
+    games_count = db.games.count_documents({})
+    all_games_have_winner = db.games.count_documents({"winner": {"$exists": False}}) == 0
+    if all_games_have_winner:
+        # Create the next set of playoff games
+        create_playoff_games(db)
+    
     # Find the first game with no winner
     game = db.games.find_one({"winner": {"$exists": False}}, sort=[("gameId", 1)])
     if game is None:
         # Check if there are any games at all
-        games_count = db.games.count_documents({})
         if games_count == 0:
             return jsonify({"message": "No games found."}), 404
-        else:
-            # Get the top 2 bots sorted by wins
-            top_2_bots = list(db.bots.find({}, {"_id": False, "botId": True, "wins": True}).sort([("wins", -1)]).limit(2))
-            bot_ids = [bot["botId"] for bot in top_2_bots]
-
-            # Create the championship game
-            game = {
-                'team1': str(bot_ids[0]),
-                'team2': str(bot_ids[1]),
-                'gameId': db.games.count_documents({}) + 1,
-                'championship': 'yes',
-                'createDate': datetime.datetime.utcnow(),
-                'updateDate': datetime.datetime.utcnow()
-            }
-            db.games.insert_one(game)
-            return jsonify({'message': 'Championship game created successfully'}), 200
+        
     # Get the bots for the game
     team1 = db.bots.find_one({"botId": str(game["team1"])})
     team2 = db.bots.find_one({"botId": str(game["team2"])})
@@ -97,6 +88,7 @@ def get_next_game():
             "imageId": str(team2["imageId"])
         }
     })
+
 
 
 
@@ -271,24 +263,114 @@ def post_generate_battle(game_id):
     else:
      return jsonify({'error': 'Failed to extract resulttext and winner'}), 500
 
-    # Update the game document
-    db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
-
+    # Check if the game is part of a series
+    if game.get("series", False):
+        if game.get("team1wins", 0) == 4:
+            db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"], 'resulttext': resulttext}})
+        elif game.get("team2wins", 0) == 4:
+            db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}})
+        else:
+            # Increment the wins count for the winning team
+            if winner == game["team1"]:
+                db.games.update_one({'gameId': game_id}, {'$inc': {'team1wins': 1}})
+            elif winner == game["team2"]:
+                db.games.update_one({'gameId': game_id}, {'$inc': {'team2wins': 1}})
+    else:
+        # Update the game document
+        db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
+        
     # Update the bots documents
-    
     winning_bot = db.bots.find_one({'botId': winner})
     losing_bot = None
     if team1['botId'] == winner:
         losing_bot = team2
     else:
         losing_bot = team1
+
+    # Check if the game is part of a series
+    if game.get("series", False):
+        # Check if team1wins or team2wins is equal to 4
+        if game.get("team1wins", 0) == 4:
+            db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"]}})
+        elif game.get("team2wins", 0) == 4:
+            db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"]}})
+        else:
+            # Increment the wins for the winning bot
+            db.games.update_one({'gameId': game_id}, {'$inc': {f'team{winner}wins': 1}})
+    else:
+        db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner}})
     
-   
     db.bots.update_one({'botId': winner}, {'$inc': {'wins': 1}})
     db.bots.update_one({'botId': losing_bot['botId']}, {'$inc': {'losses': 1}})
 
     return jsonify({'winner': winner, 'resulttext': resulttext})
-
-
+def create_playoff_games(db):
+    # Connect to the MongoDB database
+    client = MongoClient()
+    db = client[db]
+    
+    # Get the teams based on their final standings
+    teams = list(db.teams.find().sort("wins", -1))
+    
+    # Create the playoff matchups
+    matchups = [
+        (teams[0], teams[7]),
+        (teams[1], teams[6]),
+        (teams[2], teams[5]),
+        (teams[3], teams[4])
+    ]
+    
+    # Create the games for each matchup
+    for i, matchup in enumerate(matchups):
+        team1, team2 = matchup
+        for j in range(7):
+            
+            game = {
+                "gameId": db.games.count() + 1,
+                "team1": team1["teamId"],
+                "team2": team2["teamId"],
+                "series": True,
+                "team1wins": 0,
+                "team2wins": 0,
+                "playoffround": 1
+            }
+        db.games.insert_one(game)
+    
+    # Check if all games with playoffround = 1 have a winner
+    playoff_round_1 = list(db.games.find({"playoffround": 1}))
+    all_round_1_games_played = all(game.get("winner") is not None for game in playoff_round_1)
+    if all_round_1_games_played:
+        # Create the next set of games with the winners of playoffround = 1
+        matchups = [(playoff_round_1[0]["winner"], playoff_round_1[1]["winner"]), (playoff_round_1[2]["winner"], playoff_round_1[3]["winner"])]
+        for i, matchup in enumerate(matchups):
+            team1, team2 = matchup
+            game = {
+                "gameId": db.games.count() + 1,
+                "team1": team1,
+                "team2": team2,
+                "series": True,
+                "team1wins": 0,
+                "team2wins": 0,
+                "playoffround": 2
+            }
+        db.games.insert_one(game)
+            
+        # Check if all games with playoffround = 2 have a winner
+        playoff_round_2 = list(db.games.find({"playoffround": 2}))
+        all_round_2_games_played = all(game.get("winner") is not None for game in playoff_round_2)
+        if all_round_2_games_played:
+            # Create the championship game with the winners of playoffround = 2
+            championship_matchup = (playoff_round_2[0]["winner"], playoff_round_2[1]["winner"])
+            team1, team2 = championship_matchup
+            game = {
+                "gameId": db.games.count() + 1,
+                "team1": team1,
+                "team2": team2,
+                "series": True,
+                "team1wins": 0,
+                "team2wins": 0,
+                "playoffround": 3
+            }
+        db.games.insert_one(game)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
