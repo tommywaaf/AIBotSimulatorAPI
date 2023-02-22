@@ -336,15 +336,17 @@ def create_playoff_games(db):
             matchups = [(playoff_round_1[0]["winner"], playoff_round_1[1]["winner"]), (playoff_round_1[2]["winner"], playoff_round_1[3]["winner"])]
             for i, matchup in enumerate(matchups):
                 team1, team2 = matchup
-                game = {
-                    "gameId": db.games.count_documents({}) + 1,
-                    "team1": team1,
-                    "team2": team2,
-                    "series": True,
-                    "team1wins": 0,
-                    "team2wins": 0,
-                    "playoffround": 2
-                }
+                for j in range(3):
+
+                    game = {
+                        "gameId": db.games.count_documents({}) + 1,
+                        "team1": team1["botId"],
+                        "team2": team2["botId"],
+                        "series": True,
+                        "team1wins": 0,
+                        "team2wins": 0,
+                        "playoffround": 1
+                    }
                 db.games.insert_one(game)
 
 
