@@ -290,7 +290,7 @@ def post_generate_battle(game_id):
     else:
         db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
         return jsonify({'winner': winner, 'resulttext': resulttext})
-    return jsonify({'winner': winner, 'resulttext': resulttext})
+    
 
 def create_playoff_games(db):
 
