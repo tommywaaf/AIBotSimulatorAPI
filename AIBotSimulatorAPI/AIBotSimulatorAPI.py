@@ -263,7 +263,18 @@ def post_generate_battle(game_id):
     else:
      return jsonify({'error': 'Failed to extract resulttext and winner'}), 500
 
-   # Update the games document
+   # Update the bots documents
+    winning_bot = db.bots.find_one({'botId': winner})
+    losing_bot = None
+    if team1['botId'] == winner:
+        losing_bot = team2
+    else:
+        losing_bot = team1
+
+    db.bots.update_one({'botId': winner}, {'$inc': {'wins': 1}})
+    db.bots.update_one({'botId': losing_bot['botId']}, {'$inc': {'losses': 1}})
+
+    # Update the games document
     if game.get("series", False):
         if winner == game["team1"]:
             db.games.update_one({'gameId': game_id}, {'$inc': {'team1wins': 1}})
@@ -276,32 +287,9 @@ def post_generate_battle(game_id):
             db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}})
     else:
         db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
-        
-    # Update the bots documents
-    winning_bot = db.bots.find_one({'botId': winner})
-    losing_bot = None
-    if team1['botId'] == winner:
-        losing_bot = team2
-    else:
-        losing_bot = team1
 
-    # Check if the game is part of a series
-    if game.get("series", False):
-        # Check if team1wins or team2wins is equal to 4
-        if game.get("team1wins", 0) == 4:
-            db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"]}})
-        elif game.get("team2wins", 0) == 4:
-            db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"]}})
-        else:
-            # Increment the wins for the winning bot
-            db.games.update_one({'gameId': game_id}, {'$inc': {f'team{winner}wins': 1}})
-    else:
-        db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner}})
-    
-    db.bots.update_one({'botId': winner}, {'$inc': {'wins': 1}})
-    db.bots.update_one({'botId': losing_bot['botId']}, {'$inc': {'losses': 1}})
 
-    return jsonify({'winner': winner, 'resulttext': resulttext})
+        return jsonify({'winner': winner, 'resulttext': resulttext})
 def create_playoff_games(db):
 
     # Get the teams based on their final standings
