@@ -324,7 +324,7 @@ def create_playoff_games(db):
             db.games.insert_one(game)
 
     
-    # Check if all games with playoffround = 1 have a winner
+# Check if all games with playoffround = 1 have a winner
     playoff_round_1 = list(db.games.find({"playoffround": 1}))
     all_round_1_games_played = all(game.get("winner") is not None for game in playoff_round_1)
     if all_round_1_games_played:
@@ -344,7 +344,8 @@ def create_playoff_games(db):
                     "team2wins": 0,
                     "playoffround": 2
                 }
-            db.games.insert_one(game)
+                db.games.insert_one(game)
+
 
             
         # Check if all games with playoffround = 2 have a winner
