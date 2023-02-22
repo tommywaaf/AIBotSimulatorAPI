@@ -76,6 +76,8 @@ def get_next_game():
     # Return the bot details as JSON
     return jsonify({
         "gameId": game["gameId"],
+        "team1wins": game.get("team1wins"),
+        "team2wins": game.get("team2wins"),
         "playoffround": game.get("playoffround"),
         "team1": {
             "name": team1["name"],
