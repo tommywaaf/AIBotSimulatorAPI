@@ -280,16 +280,17 @@ def post_generate_battle(game_id):
             db.games.update_one({'gameId': game_id}, {'$inc': {'team1wins': 1}})
             if game.get("team1wins", 0) == 4:
                 db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"], 'resulttext': resulttext}})
+                return jsonify({'winner': game["team1"], 'resulttext': resulttext})
         elif winner == game["team2"]:
             db.games.update_one({'gameId': game_id}, {'$inc': {'team2wins': 1}})
             if game.get("team2wins", 0) == 4:
                 db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}})
+                return jsonify({'winner': game["team2"], 'resulttext': resulttext})
 
     else:
         db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
+        return jsonify({'winner': winner, 'resulttext': resulttext})
 
-
-    return jsonify({'winner': winner, 'resulttext': resulttext})
 def create_playoff_games(db):
 
     # Get the teams based on their final standings
