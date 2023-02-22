@@ -341,8 +341,7 @@ def create_playoff_games(db):
 
         playoff_round_2 = list(db.games.find({"playoffround": 2}))
         all_round_2_games_played = all(game.get("winner") is not None for game in playoff_round_2)
-        if all_round_2_games_played:
-            # Create the championship game with the winners of playoffround = 2
+        if all_round_2_games_played and db.games.count_documents({"playoffround": 3}) == 0:
             championship_matchup = (playoff_round_2[0]["winner"], playoff_round_2[1]["winner"])
             team1, team2 = championship_matchup
             round_3_game = {
@@ -355,6 +354,7 @@ def create_playoff_games(db):
                 "playoffround": 3
             }
             db.games.insert_one(round_3_game)
+
 
 
 if __name__ == '__main__':
