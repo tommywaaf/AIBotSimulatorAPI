@@ -294,25 +294,19 @@ def post_generate_battle(game_id):
 
 def create_playoff_games(db):
 
-    
-    
     # Create the playoff matchups
-    
-    
-    # Create the games for each matchup
     if db.games.count_documents({"playoffround": {"$exists": True}}) == 0:
         # Get the teams based on their final standings
         teams = list(db.bots.find().sort("wins", -1))
         matchups = [
-        (teams[0], teams[7]),
-        (teams[1], teams[6]),
-        (teams[2], teams[5]),
-        (teams[3], teams[4])
-    ]
+            (teams[0], teams[7]),
+            (teams[1], teams[6]),
+            (teams[2], teams[5]),
+            (teams[3], teams[4])
+        ]
         for i, matchup in enumerate(matchups):
             team1, team2 = matchup
             for j in range(7):
-
                 game = {
                     "gameId": db.games.count_documents({}) + 1,
                     "team1": team1["botId"],
@@ -322,10 +316,9 @@ def create_playoff_games(db):
                     "team2wins": 0,
                     "playoffround": 1
                 }
-            db.games.insert_one(game)
+                db.games.insert_one(game)
 
-    
-# Check if all games with playoffround = 1 have a winner
+    # Check if all games with playoffround = 1 have a winner
     playoff_round_1 = list(db.games.find({"playoffround": 1}))
     all_round_1_games_played = all(game.get("winner") is not None for game in playoff_round_1)
     if all_round_1_games_played:
@@ -337,18 +330,16 @@ def create_playoff_games(db):
             for i, matchup in enumerate(matchups):
                 team1, team2 = matchup
                 for j in range(3):
-
-                    game = {
+                    round_2_game = {
                         "gameId": db.games.count_documents({}) + 1,
-                        "_id": ObjectId(),
                         "team1": team1["botId"],
                         "team2": team2["botId"],
                         "series": True,
                         "team1wins": 0,
                         "team2wins": 0,
-                        "playoffround": 1
+                        "playoffround": 2
                     }
-                db.games.insert_one(game)
+                    db.games.insert_one(round_2_game)
 
 
             
