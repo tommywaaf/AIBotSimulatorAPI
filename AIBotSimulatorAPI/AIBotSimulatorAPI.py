@@ -305,7 +305,7 @@ def create_playoff_games(db):
         ]
         for i, matchup in enumerate(matchups):
             team1, team2 = matchup
-            for j in range(7):
+            for j in range(1):
                 game = {
                     "gameId": db.games.count_documents({}) + 1,
                     "team1": team1["botId"],
