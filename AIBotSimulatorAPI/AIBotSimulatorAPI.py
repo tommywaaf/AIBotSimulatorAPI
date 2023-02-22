@@ -344,7 +344,7 @@ def create_playoff_games(db):
                     "team2wins": 0,
                     "playoffround": 2
                 }
-                db.games.insert_one(game)
+            db.games.insert_one(game)
 
 
 
