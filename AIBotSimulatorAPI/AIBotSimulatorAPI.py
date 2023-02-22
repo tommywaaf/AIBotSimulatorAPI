@@ -278,13 +278,13 @@ def post_generate_battle(game_id):
     if game.get("series", False):
         if winner == game["team1"]:
             db.games.update_one({'gameId': game_id}, {'$inc': {'team1wins': 1}})
+            if game.get("team1wins", 0) == 4:
+                db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"], 'resulttext': resulttext}})
         elif winner == game["team2"]:
             db.games.update_one({'gameId': game_id}, {'$inc': {'team2wins': 1}})
+            if game.get("team2wins", 0) == 4:
+                db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}})
 
-        if game.get("team1wins", 0) == 4:
-            db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"], 'resulttext': resulttext}})
-        elif game.get("team2wins", 0) == 4:
-            db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}})
     else:
         db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
 
