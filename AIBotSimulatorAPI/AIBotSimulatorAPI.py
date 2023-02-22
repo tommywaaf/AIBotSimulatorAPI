@@ -294,19 +294,21 @@ def post_generate_battle(game_id):
 
 def create_playoff_games(db):
 
-    # Get the teams based on their final standings
-    teams = list(db.bots.find().sort("wins", -1))
+    
     
     # Create the playoff matchups
-    matchups = [
+    
+    
+    # Create the games for each matchup
+    if db.games.count_documents({"playoffround": {"$exists": True}}) == 0:
+        # Get the teams based on their final standings
+        teams = list(db.bots.find().sort("wins", -1))
+        matchups = [
         (teams[0], teams[7]),
         (teams[1], teams[6]),
         (teams[2], teams[5]),
         (teams[3], teams[4])
     ]
-    
-    # Create the games for each matchup
-    if db.games.count_documents({"playoffround": {"$exists": True}}) == 0:
         for i, matchup in enumerate(matchups):
             team1, team2 = matchup
             for j in range(7):
