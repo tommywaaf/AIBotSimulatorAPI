@@ -283,9 +283,9 @@ def post_generate_battle(game_id):
     else:
         db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
 
-    if game.get("team1wins", 0) == 4:
+    if game.get("team1wins", 0) == 2:
             db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"], 'resulttext': resulttext}})
-    if game.get("team2wins", 0) == 4:
+    if game.get("team2wins", 0) == 2:
             db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}}) 
 
 
