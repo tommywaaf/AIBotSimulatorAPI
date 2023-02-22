@@ -345,6 +345,7 @@ if all_round_1_games_played:
                 "playoffround": 2
             }
             db.games.insert_one(game)
+
     # Check if all games with playoffround = 2 have a winner
     playoff_round_2 = list(db.games.find({"playoffround": 2}))
     all_round_2_games_played = all(game.get("winner") is not None for game in playoff_round_2)
@@ -362,6 +363,6 @@ if all_round_1_games_played:
             "playoffround": 3
         }
         db.games.insert_one(game)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+        
+        if __name__ == '__main__':
+            app.run(host='0.0.0.0', port=5000, debug=True)
