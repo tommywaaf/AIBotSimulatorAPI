@@ -321,39 +321,45 @@ def create_playoff_games(db):
     ]
     
     # Create the games for each matchup
-    for i, matchup in enumerate(matchups):
-        team1, team2 = matchup
-        for j in range(7):
-            
-            game = {
-                "gameId": db.games.count() + 1,
-                "team1": team1["teamId"],
-                "team2": team2["teamId"],
-                "series": True,
-                "team1wins": 0,
-                "team2wins": 0,
-                "playoffround": 1
-            }
-        db.games.insert_one(game)
+    if db.games.count_documents({"playoffround": {"$exists": True}}) == 0:
+        for i, matchup in enumerate(matchups):
+            team1, team2 = matchup
+            for j in range(7):
+
+                game = {
+                    "gameId": db.games.count() + 1,
+                    "team1": team1["teamId"],
+                    "team2": team2["teamId"],
+                    "series": True,
+                    "team1wins": 0,
+                    "team2wins": 0,
+                    "playoffround": 1
+                }
+            db.games.insert_one(game)
+
     
     # Check if all games with playoffround = 1 have a winner
     playoff_round_1 = list(db.games.find({"playoffround": 1}))
     all_round_1_games_played = all(game.get("winner") is not None for game in playoff_round_1)
     if all_round_1_games_played:
-        # Create the next set of games with the winners of playoffround = 1
-        matchups = [(playoff_round_1[0]["winner"], playoff_round_1[1]["winner"]), (playoff_round_1[2]["winner"], playoff_round_1[3]["winner"])]
-        for i, matchup in enumerate(matchups):
-            team1, team2 = matchup
-            game = {
-                "gameId": db.games.count() + 1,
-                "team1": team1,
-                "team2": team2,
-                "series": True,
-                "team1wins": 0,
-                "team2wins": 0,
-                "playoffround": 2
-            }
-        db.games.insert_one(game)
+        # Check if there are any games with playoffround = 2
+        playoff_round_2_exists = db.games.count_documents({"playoffround": 2}) > 0
+        if not playoff_round_2_exists:
+            # Create the next set of games with the winners of playoffround = 1
+            matchups = [(playoff_round_1[0]["winner"], playoff_round_1[1]["winner"]), (playoff_round_1[2]["winner"], playoff_round_1[3]["winner"])]
+            for i, matchup in enumerate(matchups):
+                team1, team2 = matchup
+                game = {
+                    "gameId": db.games.count() + 1,
+                    "team1": team1,
+                    "team2": team2,
+                    "series": True,
+                    "team1wins": 0,
+                    "team2wins": 0,
+                    "playoffround": 2
+                }
+            db.games.insert_one(game)
+
             
         # Check if all games with playoffround = 2 have a winner
         playoff_round_2 = list(db.games.find({"playoffround": 2}))
