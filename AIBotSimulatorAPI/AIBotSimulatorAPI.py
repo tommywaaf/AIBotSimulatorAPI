@@ -263,20 +263,18 @@ def post_generate_battle(game_id):
     else:
      return jsonify({'error': 'Failed to extract resulttext and winner'}), 500
 
-    # Check if the game is part of a series
+   # Update the games document
     if game.get("series", False):
+        if winner == game["team1"]:
+            db.games.update_one({'gameId': game_id}, {'$inc': {'team1wins': 1}})
+        elif winner == game["team2"]:
+            db.games.update_one({'gameId': game_id}, {'$inc': {'team2wins': 1}})
+
         if game.get("team1wins", 0) == 4:
             db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"], 'resulttext': resulttext}})
         elif game.get("team2wins", 0) == 4:
             db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}})
-        else:
-            # Increment the wins count for the winning team
-            if winner == game["team1"]:
-                db.games.update_one({'gameId': game_id}, {'$inc': {'team1wins': 1}})
-            elif winner == game["team2"]:
-                db.games.update_one({'gameId': game_id}, {'$inc': {'team2wins': 1}})
     else:
-        # Update the game document
         db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
         
     # Update the bots documents
