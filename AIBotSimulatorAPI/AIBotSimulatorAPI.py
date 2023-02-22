@@ -332,10 +332,11 @@ def create_playoff_games(db):
         if not playoff_round_2_exists:
             # Create the next set of games with the winners of playoffround = 1
             matchups = [(playoff_round_1[0]["winner"], playoff_round_1[1]["winner"]), (playoff_round_1[2]["winner"], playoff_round_1[3]["winner"])]
+            max_game_id = db.games.find_one(sort=[("gameId", -1)], limit=1)["gameId"]
             for i, matchup in enumerate(matchups):
                 team1, team2 = matchup
                 game = {
-                    "gameId": db.games.count_documents({}) + 1,
+                    "gameId": max_game_id + i + 1,
                     "team1": team1,
                     "team2": team2,
                     "series": True,
@@ -344,6 +345,7 @@ def create_playoff_games(db):
                     "playoffround": 2
                 }
                 db.games.insert_one(game)
+
 
 
             
