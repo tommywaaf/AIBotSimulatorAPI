@@ -287,10 +287,14 @@ def post_generate_battle(game_id):
             db.games.update_one({'gameId': game_id}, {'$inc': {'team1wins': 1}})
             if game.get("team1wins", 0) == 3:
                 db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"], 'resulttext': resulttext}})
+                if game.get("playoffround", 0) == 3:
+                    db.bots.update_one({'botId': winner}, {'$inc': {'championships': 1}})
         elif winner == game["team2"]:
             db.games.update_one({'gameId': game_id}, {'$inc': {'team2wins': 1}})
             if game.get("team2wins", 0) == 3:
                 db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}})
+                if game.get("playoffround", 0) == 3:
+                    db.bots.update_one({'botId': winner}, {'$inc': {'championships': 1}})
     else:
         db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
 
@@ -346,7 +350,7 @@ def create_playoff_games(db):
                     "playoffround": 2
                 }
                 db.games.insert_one(round_2_game)
-
+        #create championship
         playoff_round_2 = list(db.games.find({"playoffround": 2}))
         all_round_2_games_played = all(game.get("winner") is not None for game in playoff_round_2)
         if all_round_2_games_played and db.games.count_documents({"playoffround": 3}) == 0:
