@@ -262,18 +262,13 @@ def post_generate_battle(game_id):
     )
     
     response_text = response["choices"][0]["text"]
-    match = re.search(r'      resulttext:\n([^\n]+)\n.*winner: (\w+)', response_text)
+    pattern = r'      resulttext:\n([\s\S]+)\n.*winner: (\w+)'
+    match = re.search(pattern, response_text)
     if match:
         resulttext = match.group(1)
         winner_name = match.group(2)
     else:
-        return jsonify({'error': 'Failed to extract resulttext and winner'}), 500
-
-    winner = db.bots.find_one({"name": winner_name})
-    if winner:
-        winner = winner["botId"]
-    else:
-        return jsonify({'error': 'Bot with name {} not found'.format(winner_name)}), 404
+        print({'error': 'Failed to extract resulttext and winner'})
 
    # Update the bots documents
     winning_bot = db.bots.find_one({'botId': winner})
