@@ -270,36 +270,34 @@ def post_generate_battle(game_id):
     else:
         print({'error': 'Failed to extract resulttext and winner'})
 
-   # Update the bots documents
+    # Update the bots documents
     winner = db.bots.find_one({'botId': winner_name})
-    losing_bot = None
-    if team1['botId'] == winner:
+    if team1['botId'] == winner_name:
         losing_bot = team2
     else:
         losing_bot = team1
 
-    db.bots.update_one({'botId': winner}, {'$inc': {'wins': 1}})
+    db.bots.update_one({'botId': winner_name}, {'$inc': {'wins': 1}})
     db.bots.update_one({'botId': losing_bot['botId']}, {'$inc': {'losses': 1}})
 
     if game.get("series", False):
-        if winner == game["team1"]:
+        if winner_name == game["team1"]["botId"]:
             db.games.update_one({'gameId': game_id}, {'$inc': {'team1wins': 1}})
             if game.get("team1wins", 0) == 3:
                 db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team1"], 'resulttext': resulttext}})
                 if game.get("playoffround", 0) == 3:
-                    db.bots.update_one({'botId': winner}, {'$inc': {'championships': 1}})
-        elif winner == game["team2"]:
+                    db.bots.update_one({'botId': winner_name}, {'$inc': {'championships': 1}})
+        elif winner_name == game["team2"]["botId"]:
             db.games.update_one({'gameId': game_id}, {'$inc': {'team2wins': 1}})
             if game.get("team2wins", 0) == 3:
                 db.games.update_one({'gameId': game_id}, {'$set': {'winner': game["team2"], 'resulttext': resulttext}})
                 if game.get("playoffround", 0) == 3:
-                    db.bots.update_one({'botId': winner}, {'$inc': {'championships': 1}})
+                    db.bots.update_one({'botId': winner_name}, {'$inc': {'championships': 1}})
     else:
         db.games.update_one({'gameId': game_id}, {'$set': {'winner': winner, 'resulttext': resulttext}})
 
-
-
     return jsonify({'winner': winner, 'resulttext': resulttext})
+
 
     
 def create_playoff_games(db):
