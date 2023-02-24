@@ -272,7 +272,8 @@ def post_generate_battle(game_id):
 
     # Update the bots documents
     winner_name = winner_name.strip()
-    winner = db.bots.find_one({'botId': winner_name})
+    winner_doc = db.bots.find_one({'name': winner_name})
+    winner = winner_doc['botId']
     if team1['botId'] == winner_name:
         losing_bot = team2
     else:
