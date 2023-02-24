@@ -271,7 +271,7 @@ def post_generate_battle(game_id):
         print({'error': 'Failed to extract resulttext and winner'})
 
    # Update the bots documents
-    winning_bot = db.bots.find_one({'botId': winner})
+    winner = db.bots.find_one({'botId': winner_name})
     losing_bot = None
     if team1['botId'] == winner:
         losing_bot = team2
